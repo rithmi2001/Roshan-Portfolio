@@ -89,18 +89,96 @@
     });
   });
 
-  /* Modal: industry galleries and image viewer */
-  var imgs = ['/shaver%20box.jpeg', '/ladu%20shaver.jpeg', '/lady%20shaver%203.jpeg', '/streamer%20box.jpeg', '/steamer%20box.jpeg'];
-  var data = {
-    food: ['Food & Beverage', 'Packaging designed to stand out on the shelf and keep products fresh.', 3],
-    health: ['Health Supplements', 'Clean, trustworthy labels for health and wellness products.', 2],
-    cosmetics: ['Cosmetics', 'Elegant, modern packaging that reflects your brand.', 0],
-    baby: ['Baby Products', 'Safe, friendly packaging for growing baby brands.', 1],
-    electronics: ['Electronics', 'Packaging that protects products and presents technology clearly.', 4],
-    household: ['Household Products', 'Practical, attractive packaging for everyday essentials.', 2],
-    pet: ['Pet Products', 'Fun, memorable packaging that pet owners trust.', 3]
+  /* ===== Gallery images per industry =====
+     Always use forward slashes (/), never backslashes (\).
+     Spaces are encoded automatically by encodeURI.
+
+     pattern(folder, templates, count, exts)
+       templates: file name(s) without extension, with {n} = the number.
+                  e.g. 'IMAGE 1 ({n}) copy'  ->  IMAGE 1 (1) copy, IMAGE 1 (2) copy ...
+                  Pass an array to try several name styles.
+       exts:      extensions to try, e.g. ['jpg','jpeg','png']
+       Files that don't exist are skipped automatically.
+
+     files(folder, [names])
+       use when you want to list exact file names (with extension). */
+  function pattern(folder, templates, count, exts) {
+    templates = [].concat(templates);
+    exts = exts || ['jpg', 'jpeg', 'png', 'webp'];
+    var out = [];
+    for (var i = 1; i <= count; i++) {
+      var alts = [];
+      templates.forEach(function (t) {
+        exts.forEach(function (ext) {
+          alts.push(encodeURI(folder + '/' + t.replace('{n}', i) + '.' + ext));
+        });
+      });
+      out.push(alts);
+    }
+    return out;
+  }
+  function files(folder, names) {
+    return names.map(function (name) { return encodeURI(folder + '/' + name); });
+  }
+
+  var galleryImages = {
+    food: [
+      'assets/packaging/food-1.jpg',
+      'assets/packaging/food-2.jpg'
+    ],
+    health: [
+      'assets/packaging/health-1.jpg',
+      'assets/packaging/health-2.jpg'
+    ],
+    
+    cosmetics: pattern('assets/MASK', 'MASK ({n})', 10, ['png', 'jpg', 'jpeg']),
+ 
+
+    baby: [
+      'assets/packaging/baby-1.jpg',
+      'assets/packaging/baby-2.jpg'
+    ],
+
+    electronics: [].concat(
+    pattern('assets/STEAMER-20261021T171919Z-1-001/STEAMER', 'STEAM ({n})', 10, ['png']),
+    files('assets/LADY SHAVER', [
+      'IMAGE 1 (1) copy.jpg',
+      'IMAGE 1 (2).png',
+      'IMAGE 1 (4).png',
+      'IMAGE 1 (5).png',
+      'IMAGE 1 (6).png',
+      'Firefly_Gemini Flash (4).png'
+    ])
+  ),
+
+    household: [
+      'assets/packaging/household-1.jpg',
+      'assets/packaging/household-2.jpg'
+    ],
+    pet: [
+      'assets/packaging/pet-1.jpg',
+      'assets/packaging/pet-2.jpg'
+    ]
   };
+
+  var data = {
+    food: ['Food & Beverage', 'Packaging designed to stand out on the shelf and keep products fresh.'],
+    health: ['Health Supplements', 'Clean, trustworthy labels for health and wellness products.'],
+    cosmetics: ['Cosmetics', 'Elegant, modern packaging that reflects your brand.'],
+    baby: ['Baby Products', 'Safe, friendly packaging for growing baby brands.'],
+    electronics: ['Electronics', 'Packaging that protects products and presents technology clearly.'],
+    household: ['Household Products', 'Practical, attractive packaging for everyday essentials.'],
+    pet: ['Pet Products', 'Fun, memorable packaging that pet owners trust.']
+  };
+
+  /* Modal */
   var modal = $('#modal'), box = $('.box', modal), gal = $('#gal'), last = null;
+
+  function emptyMessage() {
+    if (!gal.children.length) {
+      gal.innerHTML = '<p class="muted">Projects for this category are coming soon.</p>';
+    }
+  }
 
   function show(title, desc, list, single, from) {
     last = from;
@@ -108,40 +186,70 @@
     $('#mDesc').textContent = desc;
     box.classList.toggle('single', !!single);
     gal.innerHTML = '';
-    list.forEach(function (src, i) {
-      var a = document.createElement('a');
-      a.href = src; a.target = '_blank'; a.rel = 'noopener';
-      var im = document.createElement('img');
-      im.src = src; im.alt = title + ' ' + (i + 1);
-      a.appendChild(im);
-      gal.appendChild(a);
-    });
+    var seen = {};   /* avoids showing the same file twice */
+
+    if (!list || !list.length) {
+      emptyMessage();
+    } else {
+      list.forEach(function (item, i) {
+        var alts = Array.isArray(item) ? item : [item], k = 0;
+        var a = document.createElement('a');
+        a.target = '_blank'; a.rel = 'noopener';
+        var im = document.createElement('img');
+        im.alt = title + ' ' + (i + 1);
+        im.onload = function () {
+          var key = alts[k];
+          if (seen[key]) { a.remove(); emptyMessage(); } else { seen[key] = true; }
+        };
+        im.onerror = function () {
+          k++;
+          if (k < alts.length) {            /* try the next name / extension */
+            a.href = alts[k];
+            im.src = alts[k];
+          } else {                           /* nothing worked: hide it */
+            a.remove();
+            emptyMessage();
+          }
+        };
+        a.href = alts[0];
+        im.src = alts[0];
+        a.appendChild(im);
+        gal.appendChild(a);
+      });
+    }
+
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     $('.x', modal).focus();
   }
+
   function closeModal() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     if (last && last.focus) last.focus();
   }
+
   $$('.card').forEach(function (c) {
     c.addEventListener('click', function () {
-      var d = data[c.dataset.industry]; if (!d) return;
-      var list = imgs.slice(d[2]).concat(imgs.slice(0, d[2]));
-      show(d[0], d[1], list, false, c);
+      var key = c.dataset.industry, d = data[key];
+      if (!d) return;
+      show(d[0], d[1], galleryImages[key] || [], false, c);
     });
   });
+
   $$('.work figure').forEach(function (f) {
     f.addEventListener('click', function () {
       var im = $('img', f);
       show($('figcaption', f).textContent, 'Selected packaging project.', [im.getAttribute('src')], true, f);
     });
   });
+
   $$('[data-close]').forEach(function (c) { c.addEventListener('click', closeModal); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
 
   /* Contact form (connect to Formspree, Netlify Forms or your backend to receive messages) */
   $('#form').addEventListener('submit', function (e) {
