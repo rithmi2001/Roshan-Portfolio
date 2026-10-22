@@ -2,7 +2,6 @@
   'use strict';
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* Preloader, then hero staggers in */
   var pre = $('#preloader'), pct = $('#pct'), n = 0, entered = false;
@@ -21,37 +20,12 @@
 
   function countUp(el) {
     var end = +el.dataset.count, t0 = null;
-    (function step(t) {
+    requestAnimationFrame(function step(t) {
       t0 = t0 || t;
       var p = Math.min((t - t0) / 1400, 1);
       el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
       if (p < 1) requestAnimationFrame(step);
-    })(performance.now());
-  }
-
-  /* Typed headline */
-  var words = ['Packaging Designer', 'Label Designer', 'Amazon Branding Specialist', 'Print Production Expert'];
-  var typed = $('#typed'), wi = 0, ci = 0, del = false;
-  (function type() {
-    var w = words[wi];
-    ci += del ? -1 : 1;
-    typed.textContent = w.slice(0, ci);
-    var wait = del ? 35 : 70;
-    if (!del && ci === w.length) { del = true; wait = 1500; }
-    else if (del && ci === 0) { del = false; wi = (wi + 1) % words.length; wait = 350; }
-    setTimeout(type, reduce ? 99999 : wait);
-  })();
-
-  /* Hero sheet tilts toward the pointer (desktop only) */
-  var tilt = $('#tilt');
-  if (tilt && !reduce && window.matchMedia('(hover:hover)').matches) {
-    var art = tilt.parentNode;
-    art.addEventListener('mousemove', function (e) {
-      var r = art.getBoundingClientRect();
-      var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-      tilt.style.transform = 'rotateY(' + x * 12 + 'deg) rotateX(' + -y * 10 + 'deg)';
     });
-    art.addEventListener('mouseleave', function () { tilt.style.transform = ''; });
   }
 
   /* Scroll reveal */
@@ -78,7 +52,6 @@
   function onScroll() {
     var y = window.scrollY, h = document.documentElement.scrollHeight - innerHeight;
     bar.style.transform = 'scaleX(' + (h > 0 ? y / h : 0) + ')';
-    header.classList.toggle('stuck', y > 40);
     header.classList.toggle('hide', y > lastY && y > 400 && !nav.classList.contains('open'));
     totop.classList.toggle('show', y > 700);
     lastY = y;
@@ -116,7 +89,7 @@
     });
   });
 
-  /* Modal: industry galleries and image viewer, both using your own images */
+  /* Modal: industry galleries and image viewer */
   var imgs = ['/shaver%20box.jpeg', '/ladu%20shaver.jpeg', '/lady%20shaver%203.jpeg', '/streamer%20box.jpeg', '/steamer%20box.jpeg'];
   var data = {
     food: ['Food & Beverage', 'Packaging designed to stand out on the shelf and keep products fresh.', 3],
@@ -138,7 +111,9 @@
     list.forEach(function (src, i) {
       var a = document.createElement('a');
       a.href = src; a.target = '_blank'; a.rel = 'noopener';
-      a.innerHTML = '<img alt="' + title + ' ' + (i + 1) + '" src="' + src + '">';
+      var im = document.createElement('img');
+      im.src = src; im.alt = title + ' ' + (i + 1);
+      a.appendChild(im);
       gal.appendChild(a);
     });
     modal.classList.add('open');
