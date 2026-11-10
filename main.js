@@ -213,12 +213,18 @@
     if (last && last.focus) last.focus();
   }
 
-  $$('.card').forEach(function (c) {
-    c.addEventListener('click', function () {
-      var key = c.dataset.industry, d = data[key];
-      if (d) show(d[0], d[1], galleryImages[key] || [], false, c);
-    });
+$$('.card').forEach(function (c) {
+  c.addEventListener('click', function () {
+
+    var key = c.dataset.industry;
+    var images = galleryImages[key] || [];
+
+    if (images.length > 0) {
+      window.open(images[0], '_blank');
+    }
+
   });
+});
 
   $$('.work figure').forEach(function (f) {
     f.tabIndex = 0;
