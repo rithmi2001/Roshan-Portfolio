@@ -143,15 +143,9 @@
   var galleryImages = {
     food: ['assets/packaging/food-1.jpg', 'assets/packaging/food-2.jpg'],
     health: ['assets/baby.jpeg'],
-    cosmetics: pattern('assets/MASK', 'MASK ({n})', 10, ['png', 'jpg', 'jpeg']),
+    cosmetics: ['assets/mask.jpeg'],
     baby: ['assets/baby.jpeg'],
-    electronics: [].concat(
-      pattern('assets/STEAMER-20261021T171919Z-1-001/STEAMER', 'STEAM ({n})', 10, ['png']),
-      files('assets/LADY SHAVER', [
-        'IMAGE 1 (1) copy.jpg', 'IMAGE 1 (2).png', 'IMAGE 1 (4).png',
-        'IMAGE 1 (5).png', 'IMAGE 1 (6).png', 'Firefly_Gemini Flash (4).png'
-      ])
-    ),
+    electronics:['assets/mask.jpeg'],
     household: ['assets/packaging/household-1.jpg', 'assets/packaging/household-2.jpg'],
     pet: ['assets/packaging/pet-1.jpg', 'assets/packaging/pet-2.jpg']
   };
