@@ -142,10 +142,10 @@
 
   var galleryImages = {
     food: ['assets/packaging/food-1.jpg', 'assets/packaging/food-2.jpg'],
-    health: ['assets/baby.jpeg'],
-    cosmetics: ['assets/mask.jpeg'],
-    baby: ['assets/baby.jpeg'],
-    electronics:['assets/mask.jpeg'],
+    health: ['assets/babyyy.png'],
+    cosmetics: ['assets/mask board.png'],
+    baby: ['assets/babyyy.png'],
+    electronics:['assets/mask board.png'],
     household: ['assets/packaging/household-1.jpg', 'assets/packaging/household-2.jpg'],
     pet: ['assets/packaging/pet-1.jpg', 'assets/packaging/pet-2.jpg']
   };
