@@ -142,9 +142,9 @@
 
   var galleryImages = {
     food: ['assets/packaging/food-1.jpg', 'assets/packaging/food-2.jpg'],
-    health: ['assets/packaging/health-1.jpg', 'assets/packaging/health-2.jpg'],
+    health: ['assets/baby.jpeg'],
     cosmetics: pattern('assets/MASK', 'MASK ({n})', 10, ['png', 'jpg', 'jpeg']),
-    baby: ['assets/packaging/baby-1.jpg', 'assets/packaging/baby-2.jpg'],
+    baby: ['assets/baby.jpeg'],
     electronics: [].concat(
       pattern('assets/STEAMER-20261021T171919Z-1-001/STEAMER', 'STEAM ({n})', 10, ['png']),
       files('assets/LADY SHAVER', [
